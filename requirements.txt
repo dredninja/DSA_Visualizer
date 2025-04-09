@@ -1,0 +1,2 @@
+Django>=4.0,<5.0
+# Add any other dependencies you use (e.g., djangorestframework, etc.)
