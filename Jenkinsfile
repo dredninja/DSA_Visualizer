@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                git 'https://github.com/dredninja/DSA_Visualizer.git'
+                git branch:'main', url: 'https://github.com/dredninja/DSA_Visualizer'
             }
         }
 
