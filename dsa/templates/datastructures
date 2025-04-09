@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Structures Visualization</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f8;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            max-width: 900px;
+            margin-top: 50px;
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+        h2 {
+            color: #333;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+        /* Branching lines from the title */
+        .branch-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            position: relative;
+        }
+        .branch {
+            width: 40%;
+            height: 20px;
+            border-bottom: 2px solid #555;
+            position: relative;
+        }
+        .branch.left {
+            border-right: 2px solid #555;
+        }
+        .branch.right {
+            border-left: 2px solid #555;
+        }
+        .sections-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .section {
+            width: 45%;
+            min-height: 100px;
+            text-align: center;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .section-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #555;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .ds-box {
+            display: block;
+            padding: 12px 25px;
+            margin: 10px auto;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 18px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.3s;
+            width: 80%;
+            text-align: center;
+        }
+        .ds-box:hover {
+            background-color: #45a049;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Data Structures Visualization</h2>
+
+        <!-- Branching effect -->
+        <div class="branch-container">
+            <div class="branch left"></div>
+            <div class="branch right"></div>
+        </div>
+
+        <div class="sections-container">
+            <!-- Linear Data Structures (Left) -->
+            <div class="section">
+                <div class="section-title">Linear Data Structures</div>
+                <a href="{% url 'array_visualize' %}" class="ds-box">Array</a>
+                <a href="{% url 'stack_visualize' %}" class="ds-box">Stack</a>
+            </div>
+
+            <!-- Non-Linear Data Structures (Right) -->
+            <div class="section">
+                <div class="section-title">Non-Linear Data Structures</div>
+                <a href="{% url 'trees_visualize' %}" class="ds-box">Trees</a>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
+
+
+
+
+

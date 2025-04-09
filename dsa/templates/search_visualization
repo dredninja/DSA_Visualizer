@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Algorithm Visualization</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <style>
+        .array-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .array-element-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .array-element {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 18px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.5s, transform 0.3s;
+        }
+        .highlight {
+            background-color: #ff9800; /* Highlight color */
+            transform: scale(1.2); /* Slight scale for emphasis */
+        }
+        .found {
+            background-color: #4CAF50; /* Reset color for found element */
+        }
+        .not-found {
+            background-color: #f44336; /* Color for not found */
+        }
+        #status-message {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .index {
+            font-size: 14px;
+            margin-top: 5px;
+            color: #333;
+        }
+        /* Styles for low, high and mid pointers */
+        .low {
+            background-color: #2196F3; /* Blue for low */
+            transform: scale(1.2); /* Slight scale for emphasis */
+        }
+        .high {
+            background-color: #F44336; /* Red for high */
+            transform: scale(1.2); /* Slight scale for emphasis */
+        }
+        .mid {
+            background-color: #FFEB3B; /* Yellow for mid */
+            transform: scale(1.3); /* Slight scale for emphasis */
+        }
+
+        /* Label above the elements */
+        .pointer-label {
+            position: absolute;
+            top: -25px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+        .low-label {
+            color: #2196F3;
+        }
+        .high-label {
+            color: #F44336;
+        }
+        .mid-label {
+            color: #FFEB3B;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Search Algorithm Visualization</h2>
+
+        <div id="array-container" class="array-container">
+            {% if array %}
+                {% for num in array %}
+                    <div class="array-element-container">
+                        <div class="array-element" id="element-{{ forloop.counter }}">{{ num }}</div>
+                        <div class="index">{{ forloop.counter0 }}</div>
+                        <div class="pointer-label low-label" id="low-label-{{ forloop.counter }}" style="display:none;">Low</div>
+                        <div class="pointer-label high-label" id="high-label-{{ forloop.counter }}" style="display:none;">High</div>
+                        <div class="pointer-label mid-label" id="mid-label-{{ forloop.counter }}" style="display:none;">Mid</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-warning text-center" role="alert">
+                    No array data available.
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="text-center mt-4">
+            <button id="startSearch" class="btn btn-primary">Start Search</button>
+        </div>
+
+        <!-- Message display area -->
+        <div id="status-message"></div>
+    </div>
+
+    <!-- Pass array and target safely to JavaScript using the json_script filter -->
+    {{ array|json_script:"array-data" }}
+    <script>
+        $(document).ready(function() {
+            // Get the JSON data from the script tag using the id passed by json_script filter
+            const jsonData = document.getElementById('array-data').textContent;
+            console.log('JSON Data from template:', jsonData); // Check what gets passed to the JS
+
+            // Get the target passed from views.py (if it's passed)
+            const target = "{{ target }}";
+            const algorithm = "{{ algorithm }}"; // Added to check the algorithm type (linear or binary)
+            console.log('Target:', target); // Log the target value to check
+            console.log('Algorithm:', algorithm); // Log the algorithm type to check
+
+            // Safely parse the JSON data
+            try {
+                const array = JSON.parse(jsonData); // Parse JSON
+                console.log('Parsed Array:', array); // Log the parsed array
+
+                // Start search button click event
+                $('#startSearch').click(function() {
+                    if (!target) {
+                        $('#status-message').text("Please provide a target value.").css('color', 'red');
+                        return;
+                    }
+
+                    if (algorithm === "linear") {
+                        linearSearch(array, target);
+                    } else if (algorithm === "binary") {
+                        binarySearch(array, target);
+                    }
+                });
+
+                // Linear Search function
+                function linearSearch(array, target) {
+                    let searchIndex = 0;
+
+                    function searchStep() {
+                        if (searchIndex < array.length) {
+                            const element = $('#element-' + (searchIndex + 1));
+                            element.addClass('highlight');
+
+                            if (array[searchIndex] == target) {
+                                $('#status-message').text("Element found at index " + searchIndex).css('color', 'green');
+                                //element.removeClass('highlight').addClass('found');
+                                return;
+                            } else {
+                                setTimeout(function() {
+                                    element.removeClass('highlight');
+                                    searchIndex++;
+                                    searchStep();
+                                }, 1000);
+                            }
+                        } else {
+                            $('#status-message').text("Element not found").css('color', 'red');
+                        }
+                    }
+                    searchStep();
+                }
+
+                // Binary Search function
+                function binarySearch(array, target) {
+                    let left = 0;
+                    let right = array.length - 1;
+                    let mid = -1;
+
+                    function binaryStep() {
+                        if (left <= right) {
+                            mid = Math.floor((left + right) / 2);
+                            const midElement = $('#element-' + (mid + 1)); // mid index in the array
+
+                            // Highlight low, mid, and high elements
+                            const lowElement = $('#element-' + (left + 1));
+                            const highElement = $('#element-' + (right + 1));
+
+                            // Show the labels
+                            $('#low-label-' + (left + 1)).show();
+                            $('#high-label-' + (right + 1)).show();
+                            $('#mid-label-' + (mid + 1)).show();
+
+                            lowElement.addClass('low');
+                            highElement.addClass('high');
+                            midElement.addClass('mid');
+
+                            if (array[mid] == target) {
+                                $('#status-message').text("Element found at index " + mid).css('color', 'green');
+                                midElement.removeClass('mid').addClass('found');
+                                return;
+                            } else if (array[mid] < target) {
+                                setTimeout(function() {
+                                    lowElement.removeClass('low');
+                                    highElement.removeClass('high');
+                                    midElement.removeClass('mid');
+                                    $('#low-label-' + (left + 1)).hide();
+                                    $('#high-label-' + (right + 1)).hide();
+                                    $('#mid-label-' + (mid + 1)).hide();
+                                    left = mid + 1;
+                                    binaryStep();
+                                }, 1000);
+                            } else {
+                                setTimeout(function() {
+                                    lowElement.removeClass('low');
+                                    highElement.removeClass('high');
+                                    midElement.removeClass('mid');
+                                    $('#low-label-' + (left + 1)).hide();
+                                    $('#high-label-' + (right + 1)).hide();
+                                    $('#mid-label-' + (mid + 1)).hide();
+                                    right = mid - 1;
+                                    binaryStep();
+                                }, 1000);
+                            }
+                        } else {
+                            $('#status-message').text("Element not found").css('color', 'red');
+                        }
+                    }
+                    binaryStep();
+                }
+
+            } catch (error) {
+                console.error('Error parsing JSON data:', error);
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Array Visualizer</title>
+    <style>
+        .container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .array-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .array-box {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 18px;
+            border-radius: 5px;
+            font-weight: bold;
+            border: 2px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Array Visualizer</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="array" placeholder="Enter numbers (comma-separated)" required>
+            <button type="submit">Visualize</button>
+        </form>
+
+        <div class="array-container">
+            {% for num in array %}
+                <div class="array-box">{{ num }}</div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Visualizer</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f8;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            max-width: 900px;
+            margin-top: 50px;
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+        h2 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Stack container */
+        .stack-container {
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            margin-top: 20px;
+            position: relative;
+            min-height: 300px;
+            max-height: 500px;
+            width: 100%;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        /* Stack elements */
+        .stack-element {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 8px;
+            font-size: 18px;
+            width: 50%;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Top pointer (LEFT-ALIGNED ARROW) */
+        .top-pointer {
+            position: absolute;
+            left: 10%;
+            font-size: 22px;
+            color: red;
+            font-weight: bold;
+            transition: top 0.3s ease-in-out;
+        }
+
+        /* Animations */
+        @keyframes stackEntry {
+            0% { opacity: 0; transform: translateX(-100%); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes stackExit {
+            0% { opacity: 1; transform: translateX(0); }
+            100% { opacity: 0; transform: translateX(100%); }
+        }
+        
+        .controls {
+            margin-top: 30px;
+        }
+        .controls input {
+            width: 150px;
+            margin: 5px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+        }
+        .controls button {
+            margin: 5px;
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Back Button -->
+        <a href="{% url 'datastructures' %}" class="back-button">Back to Data Structures</a>
+
+        <h2>Stack Visualizer</h2>
+
+        <!-- Stack visualization -->
+        <div class="stack-container" id="stackContainer">
+            <div class="top-pointer" id="topPointer" style="display: none;">Top →</div> <!-- Left-facing arrow -->
+        </div>
+
+        <!-- Controls for Stack Operations -->
+        <div class="controls">
+            <input type="number" id="valueInput" placeholder="Value">
+            <button class="btn btn-success" id="pushBtn">Push</button>
+            <button class="btn btn-danger" id="popBtn">Pop</button>
+            <button class="btn btn-primary" id="peekBtn">Peek</button>
+            <button class="btn btn-warning" id="clearBtn">Clear</button>
+        </div>
+
+        <!-- Peek result -->
+        <div class="peek-result mt-3" id="peekResult" style="display: none;">
+            <strong>Top of Stack:</strong> <span id="peekValue"></span>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const stackContainer = document.getElementById("stackContainer");
+            const topPointer = document.getElementById("topPointer");
+            const pushButton = document.getElementById("pushBtn");
+            const popButton = document.getElementById("popBtn");
+            const peekButton = document.getElementById("peekBtn");
+            const clearButton = document.getElementById("clearBtn");
+            const peekResult = document.getElementById("peekResult");
+            const peekValue = document.getElementById("peekValue");
+
+            function updateTopPointer() {
+                const stackElements = stackContainer.getElementsByClassName("stack-element");
+                if (stackElements.length > 0) {
+                    const lastElement = stackElements[stackElements.length - 1];
+                    topPointer.style.top = lastElement.offsetTop + "px";
+                    topPointer.style.display = "block";
+                } else {
+                    topPointer.style.display = "none";
+                }
+            }
+
+            pushButton.addEventListener("click", function () {
+                const valueInput = document.getElementById("valueInput");
+                const value = valueInput.value.trim();
+                if (value === "") return;
+
+                const newElement = document.createElement("div");
+                newElement.classList.add("stack-element");
+                newElement.textContent = value;
+                stackContainer.appendChild(newElement);
+
+                newElement.style.animation = "stackEntry 0.5s forwards";
+                updateTopPointer();
+                valueInput.value = "";
+            });
+
+            popButton.addEventListener("click", function () {
+                const stackElements = stackContainer.getElementsByClassName("stack-element");
+                if (stackElements.length > 0) {
+                    const lastElement = stackElements[stackElements.length - 1];
+                    lastElement.style.animation = "stackExit 0.5s forwards";
+                    setTimeout(() => {
+                        lastElement.remove();
+                        updateTopPointer();
+                    }, 500);
+                }
+            });
+
+            peekButton.addEventListener("click", function () {
+                const stackElements = stackContainer.getElementsByClassName("stack-element");
+                if (stackElements.length > 0) {
+                    peekValue.textContent = stackElements[stackElements.length - 1].textContent;
+                    peekResult.style.display = "block";
+                } else {
+                    peekResult.style.display = "none";
+                }
+            });
+
+            clearButton.addEventListener("click", function () {
+                stackContainer.innerHTML = '<div class="top-pointer" id="topPointer" style="display: none;">←</div>';
+                peekResult.style.display = "none";
+                updateTopPointer();
+            });
+
+            updateTopPointer();
+        });
+    </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
