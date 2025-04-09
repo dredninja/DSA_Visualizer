@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'aditya1357/DSA_Visualizer'
+        IMAGE_NAME = 'aditya1357/dsa_visualize'
     }
 
     stages {
