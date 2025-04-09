@@ -2,21 +2,16 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'yourdockerhubusername/django-devops-demo'
+        IMAGE_NAME = 'aditya1357/DSA_Visualizer'
     }
 
     stages {
         stage('Clone') {
             steps {
-                git 'https://github.com/yourusername/django-devops-demo.git'
+                git 'https://github.com/dredninja/DSA_Visualizer.git'
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh 'pip install -r requirements.txt'
-            }
-        }
 
         stage('Run Tests') {
             steps {
@@ -32,7 +27,7 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'aditya1357', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh """
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                         docker push $IMAGE_NAME
