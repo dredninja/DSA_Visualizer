@@ -14,12 +14,10 @@ def sort(request):
 def search(request):
     if request.method == "POST":
         try:
-            # Get form data
             array_str = request.POST.get("array", "")
             target_str = request.POST.get("target", "")
             algorithm = request.POST.get("algorithm", "linear")
 
-            # Convert array and target to integers
             if array_str:
                 array = list(map(int, array_str.split(",")))
             else:
@@ -30,32 +28,26 @@ def search(request):
             else:
                 raise ValueError("Target cannot be empty.")
 
-            # Store data in the session
             request.session["array"] = array
             request.session["target"] = target
             request.session["algorithm"] = algorithm
 
-            # Redirect to visualization page after successful form submission
-            return redirect('search_visualize')  # Make sure 'search_visualize' is the correct URL name
-
+            return redirect('search_visualize') 
         except ValueError as e:
             return JsonResponse({"error": str(e)}, status=400)
 
     return render(request, "search")
 
-# View for visualizing search steps
 def search_visualize(request):
     array = request.session.get("array", [])
     target = request.session.get("target", None)
     algorithm = request.session.get("algorithm", "linear")
 
-    # Sample data for steps (you can replace this with actual dynamic steps)
     if algorithm == "linear":
-        steps = linear_search(array, target)  # Get steps from your function
+        steps = linear_search(array, target)  
     elif algorithm == "binary":
         steps = binary_search(array, target) 
     
-    # Serialize the steps data to a JSON-safe string before passing it to the template
     steps_json = json.dumps(steps)
 
     return render(request, "search_visualization", {
@@ -70,11 +62,9 @@ def processing(request):
         form = SortingForm(request.POST)
         if form.is_valid():
             x = request.POST['numbers']
-            y = request.POST['algo']  # Algorithm choice from the form
+            y = request.POST['algo']  
             z = x.split()  
-            numbers = list(map(int, z))  # Convert input to list of integers
-
-            # Determine which sorting algorithm to use
+            numbers = list(map(int, z)) 
             if y == "bubbleSort":
                 steps = bubbleSort(numbers)
             elif y == "insertionSort":
@@ -100,21 +90,19 @@ def array_visualizer(request):
             try:
                 array = list(map(int, array_str.split(",")))
             except ValueError:
-                array = []  # Reset if input is invalid
+                array = [] 
 
     return render(request, "array_visualize", {"array": array})
 def stack_visualizer(request):
     return render(request, "stack_visualize")
-# Bubble Sort
 def bubbleSort(arr):
     steps = []
     n = len(arr)
-    steps.append(arr.copy())  # Initial state
+    steps.append(arr.copy()) 
 
     for i in range(n):
         swapped = False
         for j in range(n - i - 1):
-            # Log the comparison
             temp = arr.copy()
             temp[j] = [arr[j], "compare"]
             temp[j + 1] = [arr[j + 1], "compare"]
@@ -124,28 +112,25 @@ def bubbleSort(arr):
                 arr[j], arr[j + 1] = arr[j + 1], arr[j]
                 swapped = True
 
-                # Log the swap
                 temp = arr.copy()
                 temp[j] = [arr[j], "swap"]
                 temp[j + 1] = [arr[j + 1], "swap"]
                 steps.append(temp)
 
-        if not swapped:  # Stop early if sorted
+        if not swapped: 
             break
 
     return steps
 
-# Insertion Sort
 def insertionSort(arr):
     steps = []
     n = len(arr)
-    steps.append(arr.copy())  # Initial state
+    steps.append(arr.copy())  
 
     for i in range(1, n):
         key = arr[i]
         j = i - 1
 
-        # Log comparison before shifting
         temp = arr.copy()
         temp[j] = [arr[j], "compare"]
         temp[i] = [arr[i], "compare"]
@@ -154,7 +139,6 @@ def insertionSort(arr):
         while j >= 0 and arr[j] > key:
             arr[j + 1] = arr[j]
 
-            # Log shifting step
             temp = arr.copy()
             temp[j + 1] = [arr[j + 1], "swap"]  
             steps.append(temp)
@@ -163,24 +147,21 @@ def insertionSort(arr):
 
         arr[j + 1] = key
 
-        # Log insertion step
         temp = arr.copy()
         temp[j + 1] = [arr[j + 1], "swap"]
         steps.append(temp)
 
-    steps.append(arr.copy())  # Capture final sorted state
+    steps.append(arr.copy())  
     return steps
 
-# Selection Sort
 def selectionSort(arr):
     steps = []
     n = len(arr)
-    steps.append(arr.copy())  # Initial state
+    steps.append(arr.copy()) 
 
     for i in range(n):
         min_idx = i
         for j in range(i + 1, n):
-            # Log the comparison
             temp = arr.copy()
             temp[j] = [arr[j], "compare"]
             temp[min_idx] = [arr[min_idx], "compare"]
@@ -191,34 +172,29 @@ def selectionSort(arr):
 
         if min_idx != i:
             arr[i], arr[min_idx] = arr[min_idx], arr[i]
-
-            # Log the swap step
             temp = arr.copy()
             temp[i] = [arr[i], "swap"]
             temp[min_idx] = [arr[min_idx], "swap"]
             steps.append(temp)
 
-    steps.append(arr.copy())  # Capture final sorted state
+    steps.append(arr.copy())  
     return steps
 
-# Merge Sort
 def mergeSort(arr):
-    steps = []  # To store each step
+    steps = []  
 
     def merge(arr, l, m, r):
         left = arr[l:m + 1]
         right = arr[m + 1:r + 1]
 
-        # Show merging process
         temp_arr = arr.copy()
-        temp_arr[l:r + 1] = ["_"] * (r - l + 1)  # Mark merging area with "_"
+        temp_arr[l:r + 1] = ["_"] * (r - l + 1) 
         steps.append(temp_arr.copy())
 
         i = j = 0
         k = l
 
         while i < len(left) and j < len(right):
-            # Log comparison
             temp_arr = arr.copy()
             temp_arr[k] = [arr[k], "compare"]
             steps.append(temp_arr.copy())
@@ -248,9 +224,8 @@ def mergeSort(arr):
         if l < r:
             m = (l + r) // 2
 
-            # Show dividing process
             temp_arr = arr.copy()
-            temp_arr[l:r + 1] = ["|"] * (r - l + 1)  # Mark division with "|"
+            temp_arr[l:r + 1] = ["|"] * (r - l + 1)  
             steps.append(temp_arr.copy())
 
             merge_sort_helper(arr, l, m)
@@ -258,7 +233,7 @@ def mergeSort(arr):
             merge(arr, l, m, r)
 
     arr_copy = arr.copy()
-    steps.append(arr_copy.copy())  # Capture initial state
+    steps.append(arr_copy.copy())  
     merge_sort_helper(arr_copy, 0, len(arr_copy) - 1)
 
     return steps
@@ -284,42 +259,35 @@ def binary_search(array, target):
             right=mid-1
     return steps
 def stack_visualizer(request):
-    # Get the stack from the session (initialize as an empty list if not present)
     stack = request.session.get('stack', [])
 
     if request.method == "POST":
         action = request.POST.get('action')
         value = request.POST.get('value')
 
-        # Push action
         if action == 'push':
-            if value:  # Only push if value is provided
-                stack.append(int(value))  # Push value onto the stack
-                request.session['stack'] = stack  # Store updated stack in session
+            if value: 
+                stack.append(int(value)) 
+                request.session['stack'] = stack  
 
-        # Pop action
         elif action == 'pop':
-            if stack:  # Ensure stack is not empty
-                stack.pop()  # Pop the top element from the stack
-                request.session['stack'] = stack  # Store updated stack in session
+            if stack: 
+                stack.pop() 
+                request.session['stack'] = stack
 
-        # Peek action
         elif action == 'peek':
-            top = stack[-1] if stack else None  # Get the top of the stack for peek operation
+            top = stack[-1] if stack else None 
             return render(request, "stack_visualize", {
                 'stack': stack,
                 'top': top
             })
 
-        # Clear action
         elif action == 'clear':
-            stack = []  # Clear the stack
-            request.session['stack'] = stack  # Store empty stack in session
+            stack = []  
+            request.session['stack'] = stack  
 
-        # After the operation, redirect to the same page
-        return redirect('stack_visualize')  # Redirect back to the same page to refresh stack
+        return redirect('stack_visualize')  
 
-    # Render the page with the current stack
     return render(request, "stack_visualize", {'stack': stack})
 
 class TreeNode:
@@ -388,10 +356,8 @@ class BinaryTree:
             "children": children
         }
 
-# create a single global tree
 tree = BinaryTree()
 
-# default visualization page
 def trees_visualize(request):
     return render(request, "trees_visualize")
 
@@ -419,7 +385,7 @@ def clear_tree(request):
     global tree
     tree = BinaryTree()
     return JsonResponse(tree.to_dict(tree.root), safe=False)
-# --- Graph Representation ---
+
 class Graph:
     def __init__(self):
         self.adj_list = {}
@@ -481,10 +447,6 @@ def clear_graph(request):
     graph.clear()
     return JsonResponse(graph.to_d3_format(), safe=False)
 from django.shortcuts import render, redirect
-
-# In-memory linked list for session-based demo
-
-
 import json
 from django.shortcuts import render
 
@@ -493,25 +455,21 @@ linked_list = []
 def linked_list_visualize(request):
     global linked_list
     message = ""
-    middle_index = -1  # used for middle operations
+    middle_index = -1  
     head_index = 0 if linked_list else -1
-
     if request.method == 'POST':
         operation = request.POST.get('operation')
         value = request.POST.get('value', '').strip()
         pos_input = request.POST.get('position', '').strip()
 
-        # Insert front
         if operation == 'insert_front' and value:
             linked_list.insert(0, value)
             middle_index = -1
 
-        # Insert end
         elif operation == 'insert_end' and value:
             linked_list.append(value)
             middle_index = -1
 
-        # Insert at middle
         elif operation == 'insert_middle' and value and pos_input.isdigit():
             pos = int(pos_input)
             if pos < 0: pos = 0
@@ -519,7 +477,6 @@ def linked_list_visualize(request):
             linked_list.insert(pos, value)
             middle_index = pos
 
-        # Delete front
         elif operation == 'delete_front':
             if linked_list:
                 linked_list.pop(0)
@@ -527,7 +484,6 @@ def linked_list_visualize(request):
                 message = "List is already empty!"
             middle_index = -1
 
-        # Delete end
         elif operation == 'delete_end':
             if linked_list:
                 linked_list.pop()
@@ -535,7 +491,6 @@ def linked_list_visualize(request):
                 message = "List is already empty!"
             middle_index = -1
 
-        # Delete at middle
         elif operation == 'delete_middle' and pos_input.isdigit():
             pos = int(pos_input)
             if 0 <= pos < len(linked_list):
@@ -545,7 +500,6 @@ def linked_list_visualize(request):
                 message = "Invalid position!"
                 middle_index = -1
 
-        # Clear
         elif operation == 'clear':
             linked_list.clear()
             middle_index = -1
@@ -556,23 +510,19 @@ def linked_list_visualize(request):
         'middle_index': middle_index,
         'message': message
     })
-# views.py
 import json
 from django.shortcuts import render
 
-# Example trie structure
-trie = {}  # Global trie dictionary
-
+trie = {}  
 def insert_word(trie, word):
     node = trie
     for char in word:
         if char not in node:
             node[char] = {}
         node = node[char]
-    node["$"] = True  # End of word
+    node["$"] = True  
 
 def search_path(trie, word):
-    """Return list of characters traversed while searching."""
     path = []
     node = trie
     for char in word:
@@ -601,8 +551,8 @@ def trie_visualize(request):
                 message = f"Search path for '{word}'"
 
     context = {
-        "trie": json.dumps(trie),  # ✅ Ensure valid JS object
-        "animation_path": json.dumps(animation_path),  # ✅ Ensure valid JS array
+        "trie": json.dumps(trie),  
+        "animation_path": json.dumps(animation_path), 
         "message": message,
     }
 
