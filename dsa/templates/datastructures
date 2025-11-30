@@ -105,12 +105,18 @@
                 <div class="section-title">Linear Data Structures</div>
                 <a href="{% url 'array_visualize' %}" class="ds-box">Array</a>
                 <a href="{% url 'stack_visualize' %}" class="ds-box">Stack</a>
+                <a href="{% url 'queue_visualize' %}" class="ds-box">Queue</a>
+                <a href="{% url 'linked_list_visualization' %}" class="ds-box">Linked List</a>
             </div>
 
             <!-- Non-Linear Data Structures (Right) -->
             <div class="section">
                 <div class="section-title">Non-Linear Data Structures</div>
                 <a href="{% url 'trees_visualize' %}" class="ds-box">Trees</a>
+                <a href="{% url 'graph_visualize' %}" class="ds-box">Graphs</a>
+                <a href="{% url 'trie_visualize' %}" class="ds-box">Trie</a> <!-- Added Trie -->
+
+
 
             </div>
         </div>

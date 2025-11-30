@@ -2,48 +2,159 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Array Visualizer</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .container {
-            text-align: center;
-            margin-top: 20px;
+        body {
+            background-color: #f4f6f8;
+            font-family: 'Arial', sans-serif;
         }
+
+        .container {
+            max-width: 950px;
+            margin-top: 50px;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
         .array-container {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            flex-wrap: wrap;
             margin-top: 20px;
+            min-height: 100px;
         }
-        .array-box {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #4CAF50;
+
+        .array-element {
+            background-color: #17a2b8;
             color: white;
+            margin: 5px;
+            padding: 20px;
+            border-radius: 8px;
             font-size: 18px;
-            border-radius: 5px;
-            font-weight: bold;
-            border: 2px solid #333;
+            width: 60px;
+            text-align: center;
+            animation: appear 0.3s ease-in;
+        }
+
+        @keyframes appear {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .controls {
+            margin-top: 30px;
+        }
+
+        .controls input {
+            width: 150px;
+            margin: 5px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+        }
+
+        .controls button {
+            margin: 5px;
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: none;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Array Visualizer</h2>
-        <form method="POST">
-            {% csrf_token %}
-            <input type="text" name="array" placeholder="Enter numbers (comma-separated)" required>
-            <button type="submit">Visualize</button>
-        </form>
 
-        <div class="array-container">
-            {% for num in array %}
-                <div class="array-box">{{ num }}</div>
-            {% endfor %}
+    <div class="container">
+        <a href="{% url 'datastructures' %}" class="back-button">Back to Data Structures</a>
+
+        <h2>Array Visualizer</h2>
+
+        <div class="array-container" id="arrayContainer"></div>
+
+        <div class="controls">
+            <input type="number" id="arrayValue" placeholder="Enter value">
+            <input type="number" id="arrayIndex" placeholder="Index (optional)">
+            <button class="btn btn-success" id="insertBtn">Insert</button>
+            <button class="btn btn-danger" id="deleteBtn">Delete</button>
+            <button class="btn btn-warning" id="clearBtn">Clear</button>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const arrayContainer = document.getElementById("arrayContainer");
+            const insertBtn = document.getElementById("insertBtn");
+            const deleteBtn = document.getElementById("deleteBtn");
+            const clearBtn = document.getElementById("clearBtn");
+
+            insertBtn.addEventListener("click", function () {
+                const value = document.getElementById("arrayValue").value.trim();
+                const index = document.getElementById("arrayIndex").value.trim();
+
+                if (value === "") return;
+
+                const newElement = document.createElement("div");
+                newElement.className = "array-element";
+                newElement.textContent = value;
+
+                if (index === "") {
+                    arrayContainer.appendChild(newElement);
+                } else {
+                    const idx = parseInt(index);
+                    if (idx >= 0 && idx <= arrayContainer.children.length) {
+                        arrayContainer.insertBefore(newElement, arrayContainer.children[idx]);
+                    }
+                }
+
+                document.getElementById("arrayValue").value = "";
+                document.getElementById("arrayIndex").value = "";
+            });
+
+            deleteBtn.addEventListener("click", function () {
+                const index = document.getElementById("arrayIndex").value.trim();
+                if (index === "") return;
+
+                const idx = parseInt(index);
+                if (idx >= 0 && idx < arrayContainer.children.length) {
+                    arrayContainer.removeChild(arrayContainer.children[idx]);
+                }
+
+                document.getElementById("arrayIndex").value = "";
+            });
+
+            clearBtn.addEventListener("click", function () {
+                arrayContainer.innerHTML = "";
+            });
+        });
+    </script>
 </body>
 </html>
+

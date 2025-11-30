@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Visualizer</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f8;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            max-width: 900px;
+            margin-top: 50px;
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        h2 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
+        .queue-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            min-height: 120px;
+        }
+
+        .queue-element {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            margin: 5px;
+            border-radius: 8px;
+            font-size: 18px;
+            min-width: 60px;
+            text-align: center;
+            animation: enqueueAnim 0.4s ease-in;
+        }
+
+        @keyframes enqueueAnim {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes dequeueAnim {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        .controls {
+            margin-top: 30px;
+        }
+        .controls input {
+            width: 150px;
+            margin: 5px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+        }
+        .controls button {
+            margin: 5px;
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: none;
+        }
+
+        .front-pointer {
+            font-weight: bold;
+            color: red;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="{% url 'datastructures' %}" class="back-button">Back to Data Structures</a>
+
+        <h2>Queue Visualizer</h2>
+
+        <div class="queue-container" id="queueContainer"></div>
+
+        <div class="front-pointer" id="frontPointer" style="display: none;">
+            Front → <span id="frontValue"></span>
+        </div>
+
+        <div class="controls">
+            <input type="number" id="valueInput" placeholder="Value">
+            <button class="btn btn-success" id="enqueueBtn">Enqueue</button>
+            <button class="btn btn-danger" id="dequeueBtn">Dequeue</button>
+            <button class="btn btn-warning" id="clearBtn">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const queueContainer = document.getElementById("queueContainer");
+            const enqueueButton = document.getElementById("enqueueBtn");
+            const dequeueButton = document.getElementById("dequeueBtn");
+            const clearButton = document.getElementById("clearBtn");
+            const frontPointer = document.getElementById("frontPointer");
+            const frontValue = document.getElementById("frontValue");
+
+            function updateFrontPointer() {
+                const elements = queueContainer.getElementsByClassName("queue-element");
+                if (elements.length > 0) {
+                    frontPointer.style.display = "block";
+                    frontValue.textContent = elements[0].textContent;
+                } else {
+                    frontPointer.style.display = "none";
+                }
+            }
+
+            enqueueButton.addEventListener("click", function () {
+                const input = document.getElementById("valueInput").value.trim();
+                if (input === "") return;
+
+                const element = document.createElement("div");
+                element.classList.add("queue-element");
+                element.textContent = input;
+                queueContainer.appendChild(element);
+                document.getElementById("valueInput").value = "";
+                updateFrontPointer();
+            });
+
+            dequeueButton.addEventListener("click", function () {
+                const elements = queueContainer.getElementsByClassName("queue-element");
+                if (elements.length > 0) {
+                    const first = elements[0];
+                    first.style.animation = "dequeueAnim 0.4s forwards";
+                    setTimeout(() => {
+                        first.remove();
+                        updateFrontPointer();
+                    }, 400);
+                }
+            });
+
+            clearButton.addEventListener("click", function () {
+                queueContainer.innerHTML = "";
+                updateFrontPointer();
+            });
+
+            updateFrontPointer();
+        });
+    </script>
+</body>
+</html>

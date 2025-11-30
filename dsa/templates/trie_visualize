@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trie Visualizer</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body { background: #f4f6f8; font-family: Arial; }
+.container { max-width: 1000px; margin: 40px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align:center;}
+svg { width: 100%; height: 600px; background: #fefefe; border-radius: 8px; overflow: visible; }
+
+.node rect { fill: #4CAF50; stroke: #333; stroke-width: 2; rx: 8; ry: 8; transition: fill 0.4s; }
+.node text { fill: white; font-weight: bold; pointer-events: none; }
+.controls { margin-bottom: 20px; }
+.controls input { width: 150px; display:inline-block; margin:5px; }
+.controls button { margin:5px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>Trie Visualizer</h2>
+
+<div class="controls">
+    <input id="insertInput" type="text" placeholder="Insert word">
+    <button class="btn btn-success" onclick="insertWord()">Insert</button>
+    <input id="searchInput" type="text" placeholder="Search word">
+    <button class="btn btn-primary" onclick="searchWord()">Search</button>
+    <button class="btn btn-warning" onclick="clearTrie()">Clear</button>
+</div>
+
+<svg id="trieSvg"></svg>
+</div>
+
+<script>
+let trie = {};
+let nodeIdCounter = 0;
+
+const svg = d3.select("#trieSvg");
+const width = parseInt(svg.style("width"));
+const height = parseInt(svg.style("height"));
+
+// Insert word into trie
+function insertWord() {
+    const word = document.getElementById("insertInput").value.trim();
+    if (!word) return;
+    let node = trie;
+    for (let ch of word) {
+        if (!node[ch]) node[ch] = {};
+        node = node[ch];
+    }
+    renderTrie();
+    document.getElementById("insertInput").value = "";
+}
+
+// Search word and highlight path
+function searchWord() {
+    const word = document.getElementById("searchInput").value.trim();
+    if (!word) return;
+    const pathNodes = [];
+    let node = trie;
+    for (let ch of word) {
+        if (!node[ch]) {
+            alert("Word not found");
+            renderTrie();
+            return;
+        }
+        pathNodes.push(ch);
+        node = node[ch];
+    }
+    alert("Word found!");
+    animateSearch(pathNodes);
+    document.getElementById("searchInput").value = "";
+}
+
+// Clear trie
+function clearTrie() {
+    trie = {};
+    nodeIdCounter = 0;
+    renderTrie();
+}
+
+// Convert trie to hierarchical structure for D3
+function convertTrie(obj) {
+    return Object.keys(obj).map(key => {
+        const children = convertTrie(obj[key]);
+        return { name: key, children: children.length ? children : [], id: nodeIdCounter++ };
+    });
+}
+
+// Render trie using D3
+function renderTrie(highlightPath=[]) {
+    svg.selectAll("*").remove();
+    const data = { name: "root", children: convertTrie(trie), id: nodeIdCounter++ };
+    const root = d3.hierarchy(data);
+    const treeLayout = d3.tree().size([width - 100, height - 100]);
+    treeLayout(root);
+
+    const g = svg.append("g").attr("transform", "translate(50,50)");
+
+    // Links
+    g.selectAll("line")
+        .data(root.links())
+        .join("line")
+        .attr("x1", d=>d.source.x)
+        .attr("y1", d=>d.source.y)
+        .attr("x2", d=>d.target.x)
+        .attr("y2", d=>d.target.y)
+        .attr("stroke", "#555")
+        .attr("stroke-width", 2);
+
+    // Nodes
+    const nodes = g.selectAll("g.node")
+        .data(root.descendants(), d=>d.data.id)
+        .join("g")
+        .attr("class", "node")
+        .attr("transform", d=>`translate(${d.x},${d.y})`);
+
+    nodes.append("rect").attr("width", 50).attr("height", 50).attr("x", -25).attr("y", -25);
+    nodes.append("text").text(d=>d.data.name).attr("text-anchor","middle").attr("dy",".35em");
+}
+
+// Animate search path
+function animateSearch(path) {
+    svg.selectAll("*").remove();
+    renderTrie(); // draw initial trie
+    const rootData = { name: "root", children: convertTrie(trie), id: nodeIdCounter++ };
+    const root = d3.hierarchy(rootData);
+    const treeLayout = d3.tree().size([width - 100, height - 100]);
+    treeLayout(root);
+    const g = svg.select("g");
+
+    const nodes = g.selectAll("g.node");
+
+    let currentNode = root;
+    path.forEach((ch, i) => {
+        setTimeout(() => {
+            if (!currentNode.children) return;
+            currentNode = currentNode.children.find(c => c.data.name === ch);
+            if (!currentNode) return;
+            nodes.filter(d => d.data.id === currentNode.data.id)
+                .select("rect")
+                .transition()
+                .duration(400)
+                .attr("fill", "#ff4d4d") // red highlight
+                .transition()
+                .duration(400)
+                .attr("fill", "#4CAF50"); // revert
+        }, i * 800);
+    });
+}
+
+// Initial render
+renderTrie();
+</script>
+
+</body>
+</html>
+
+
