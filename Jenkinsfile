@@ -2,40 +2,34 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'yourdockerhubusername/django-devops-demo'
+        IMAGE_NAME = 'aditya1357/dsa_visualize'
     }
 
     stages {
         stage('Clone') {
             steps {
-                git 'https://github.com/yourusername/django-devops-demo.git'
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                sh 'pip install -r requirements.txt'
+                git branch: 'main', url: 'https://github.com/dredninja/DSA_Visualizer'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'python manage.py test'
+                bat 'python manage.py test'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
+                bat "docker build -t %IMAGE_NAME% ."
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh """
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push $IMAGE_NAME
+                withCredentials([usernamePassword(credentialsId: 'aditya1357', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    bat """
+                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                    docker push %IMAGE_NAME%
                     """
                 }
             }
@@ -43,7 +37,7 @@ pipeline {
 
         stage('Deploy Container') {
             steps {
-                sh 'docker run -d -p 8000:8000 $IMAGE_NAME'
+                bat 'docker run -d -p 8000:8000 %IMAGE_NAME%'
             }
         }
     }
